@@ -120,6 +120,8 @@ $ python3 run_ner_tokenized.py \
     --learning_rate 3e-5 \
     --per_device_train_batch $((8 / $(nvidia-smi -L | wc -l))) \
     --num_train_epochs 20 \
+    --eval_accumulation_steps 16 \
+    --save_total_limit 3 \
     --do_train \
     --do_eval \
     --fp16 \
@@ -137,6 +139,8 @@ $ python3 run_ner_tokenized.py \
     --learning_rate 4e-5 \
     --per_device_train_batch $((8 / $(nvidia-smi -L | wc -l))) \
     --num_train_epochs 15 \
+    --eval_accumulation_steps 16 \
+    --save_total_limit 3 \
     --do_train \
     --do_eval \
     --fp16 \
