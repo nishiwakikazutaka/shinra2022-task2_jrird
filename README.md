@@ -77,7 +77,7 @@ Server ready の状態で、Headless モードの Chrome からアクセスす�
 $ /opt/google/chrome/chrome --headless --no-sandbox --disable-gpu --window-size=1280,854 --remote-debugging-port=9222 http://localhost:8099/
 ```
 
-処理の進捗は `pretokenize.py` を実行したシェル上にプログレスバーから確認できます。プログレスバーが停止した場合、Chrome を一度停止し、再度実行することで処理が再開されます。
+処理の進捗は `pretokenize.py` を実行したシェル上のプログレスバーから確認できます。プログレスバーが停止した場合、Chrome を一度停止し、再度実行することで処理が再開されます。
 
 上記のコマンドライン引数を指定して実行した場合、処理結果は `dataset/pretokenized/train/{ENE}/{page_id}.json` として出力されます。
 
@@ -107,16 +107,23 @@ $ python3 train_dev_splitter.py \
 
 ### 2.3. 学習
 
-実験で用いた LayoutLM の初期重みは、[訓練データ用の Wikipedia2019 データ](http://2022.shinra-project.info/data-download#subtask-common) を使って Masked-Visual Language Model (MVLM) による事前学習を行ったモデル ([models/layoutlm_pretrained](models/layoutlm_pretrained/)) を利用しています。
-このモデルは後日公開予定です。
-モデルの公開後に、以下のコマンドライン引数のうち `model_name_or_path` にモデルを指定し、run_ner_tokenized.py を実行することで LayoutLM の finetuning が可能となります。
+実験で用いた LayoutLM の初期重みは、[訓練データ用の Wikipedia2019 データ](http://2022.shinra-project.info/data-download#subtask-common) を使って Masked-Visual Language Model (MVLM) による事前学習を行ったモデルを利用します。
+
+このモデルは[https://github.com/nishiwakikazutaka/layoutlm-wikipedia-ja](https://github.com/nishiwakikazutaka/layoutlm-wikipedia-ja)にて公開しており、本プロジェクト内の `models/layoutlm-wikipedia-ja` から submodule として参照しています。
+本プロジェクトをクローン済みで、submodule を追加でクローンするには、以下のコマンドを実行してください。
+
+```sh
+$ git submodule update --init --recursive
+```
+
+LayoutLM の fine-tuning には、`model_name_or_path` のコマンドライン引数に models/layoutlm-wikipedia-ja を指定し、run_ner_tokenized.py を実行します。
 
 ```sh
 $ python3 run_ner_tokenized.py \
-    --model_name_or_path <TBD> \
+    --model_name_or_path models/layoutlm-wikipedia-ja \
     --train_file dataset/model_input/train.json \
     --validation_file dataset/model_input/dev.json \
-    --output_dir models/layoutlm \
+    --output_dir models/layoutlm_finetuned \
     --learning_rate 3e-5 \
     --per_device_train_batch $((8 / $(nvidia-smi -L | wc -l))) \
     --num_train_epochs 20 \
@@ -128,14 +135,14 @@ $ python3 run_ner_tokenized.py \
     --fp16_opt_level O2
 ```
 
-BERT を finetuning するには、`model_name_or_path` のコマンドライン引数に東北大　乾研究室が公開している [cl-tohoku/bert-base-japanese-v2](https://huggingface.co/cl-tohoku/bert-base-japanese-v2) を指定し、run_ner_tokenized.py を実行します。
+BERT を fine-tuning するには、`model_name_or_path` のコマンドライン引数に東北大　乾研究室が公開している [cl-tohoku/bert-base-japanese-v2](https://huggingface.co/cl-tohoku/bert-base-japanese-v2) を指定し、run_ner_tokenized.py を実行します。
 
 ```sh
 $ python3 run_ner_tokenized.py \
     --model_name_or_path cl-tohoku/bert-base-japanese-v2 \
     --train_file dataset/model_input/train.json \
     --validation_file dataset/model_input/dev.json \
-    --output_dir models/bert \
+    --output_dir models/bert_finetuned \
     --learning_rate 4e-5 \
     --per_device_train_batch $((8 / $(nvidia-smi -L | wc -l))) \
     --num_train_epochs 15 \
@@ -184,12 +191,12 @@ $ python3 make_leaderboard_dataset.py \
 ### 3.3. 推論
 
 分割されたスライディングウィンドウ毎に推論を行った結果のマージ処理と、推論結果の IOB2 からオフセット形式への変換などの後処理を行います。
-以下は finetuning を行った BERT を推論に用いる場合の実行例です。
+以下は fine-tuning を行った LayoutLM を推論に用いる場合の実行例です。
 
 ```sh
 $ python3 shinra_inference.py \
-    --model models/bert \
-    --output inference/bert
+    --model models/layoutlm_finetuned \
+    --output inference/layoutlm
 ```
 
 ### 4. 引用
