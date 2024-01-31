@@ -3,7 +3,7 @@ datasets==2.4.0
 fugashi==1.1.1
 unidic-lite==1.0.8
 seqeval==1.2.2
-torch==1.11.0+cu113
+torch==1.13.1+cu117
 tqdm==4.64.1
 transformers==4.36.2
---extra-index-url https://download.pytorch.org/whl/cu113
+--extra-index-url https://download.pytorch.org/whl/cu117
