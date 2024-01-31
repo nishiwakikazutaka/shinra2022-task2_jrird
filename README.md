@@ -108,19 +108,13 @@ $ python3 train_dev_splitter.py \
 ### 2.3. 学習
 
 実験で用いた LayoutLM の初期重みは、[訓練データ用の Wikipedia2019 データ](http://2022.shinra-project.info/data-download#subtask-common) を使って Masked-Visual Language Model (MVLM) による事前学習を行ったモデルを利用します。
+この LayoutLM モデルは [Hugging Face Hub](https://huggingface.co/jri-advtechlab/layoutlm-wikipedia-ja) にて公開しています。
 
-このモデルは[https://github.com/nishiwakikazutaka/layoutlm-wikipedia-ja](https://github.com/nishiwakikazutaka/layoutlm-wikipedia-ja)にて公開しており、本プロジェクト内の `models/layoutlm-wikipedia-ja` から submodule として参照しています。
-本プロジェクトをクローン済みで、submodule を追加でクローンするには、以下のコマンドを実行してください。
-
-```sh
-$ git submodule update --init --recursive
-```
-
-LayoutLM の fine-tuning には、`model_name_or_path` のコマンドライン引数に models/layoutlm-wikipedia-ja を指定し、run_ner_tokenized.py を実行します。
+LayoutLM の fine-tuning には、`model_name_or_path` のコマンドライン引数に [jri-advtechlab/layoutlm-wikipedia-ja](https://huggingface.co/jri-advtechlab/layoutlm-wikipedia-ja) を指定し、run_ner_tokenized.py を実行します。
 
 ```sh
 $ python3 run_ner_tokenized.py \
-    --model_name_or_path models/layoutlm-wikipedia-ja \
+    --model_name_or_path jri-advtechlab/layoutlm-wikipedia-ja \
     --train_file dataset/model_input/train.json \
     --validation_file dataset/model_input/dev.json \
     --output_dir models/layoutlm_finetuned \

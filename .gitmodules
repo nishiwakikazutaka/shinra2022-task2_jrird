@@ -1,3 +1,0 @@
-[submodule "models/layoutlm-wikipedia-ja"]
-	path = models/layoutlm-wikipedia-ja
-	url = https://github.com/nishiwakikazutaka/layoutlm-wikipedia-ja.git
